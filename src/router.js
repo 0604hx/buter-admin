@@ -21,6 +21,14 @@ let routes = [
     component: resolve => require(['V/Dashboard'], resolve)
   },
   {
+    path: '/app',
+    name: 'app',
+    meta:{
+      title:"应用管理"
+    },
+    component: resolve => require(['V/application/Index'], resolve)
+  },
+  {
     path: '*',
     redirect: '/demo'
   }
