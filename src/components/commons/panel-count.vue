@@ -2,7 +2,7 @@
     计算面板
     左右分别显示图标、数值（可设置小标题），参考：https://github.com/iview/iview-admin/blob/dev/src/views/home/components/inforCard.vue
 -->
-<style lang="less">
+<style>
     .infor-card-icon-con{
         height: 100%;
     }
@@ -59,6 +59,6 @@ export default {
             default: 40
         }
     }
-};
+}
 </script>
     

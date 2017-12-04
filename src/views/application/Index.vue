@@ -10,18 +10,28 @@
         </i-form>
 
         <i-table :data="datas" :columns="columns" stripe class="plain"></i-table>
-        <table-page v-model="page"></table-page>
+        <TablePage v-model="page"></TablePage>
 
         <Modal v-model="addModal.show" title="编辑任务" :loading="addModal.work" @on-ok="_addDo">
             <div>
                 <i-form ref="entity" :model="entity" :label-width="70" class="thin">
                     <Form-item label="应用名">
-                        <i-input ref="taskName" autofocus v-model="entity.name" placeholder="应用名称或者代号"></i-input>
+                        <i-input ref="name" v-model="entity.name" placeholder="应用名称或者代号"></i-input>
                     </Form-item>
-                    <Form-item prop="summary" label="描述">
-                        <i-input ref="taskSummary" type="text" :rows="2" v-model="entity.summary" placeholder="简要说明"></i-input>
+                    <Form-item label="版本号">
+                        <i-input v-model="entity.version" placeholder="默认版本号为1.0.0"></i-input>
+                    </Form-item>
+                    <Form-item label="描述">
+                        <i-input type="textarea" :rows="4" v-model="entity.remark" placeholder="简要说明"></i-input>
                     </Form-item>
                 </i-form>
+            </div>
+        </Modal>
+
+
+        <Modal class="noFooter" v-model="upload.show" title="发布新版本" :mask-closable="false" :width="800">
+            <VersionUpload ref="uploadModal" :app="upload.app"></VersionUpload>
+            <div slot="footer">
             </div>
         </Modal>
     </div>
@@ -30,18 +40,26 @@
 
 <script>
     import P from '@/macro/page.tpl.vue'
+    import VersionUpload from './upload.vue'
 
     export default P.extend({
         components: {
+            "CountPanel":require("C/commons/panel-count.vue").default,
+            VersionUpload
         },
         data () {
             return {
+                upload:{
+                    app:{},
+                    show:false
+                },
+                autoFocus:"name",
                 columns: [
                     { title: "", type: "index", width: 40 },
                     { title: "应用名", key: "name", width: 120, sortable: true },
                     { title: "版本", key: "version", width: 120, sortable: true },
                     { title: "备注信息", key: "remark" },
-                    { title: "录入日期", key: "addDate", width: 105, sortable: true, render: (h, p) => { return h('p', D.date(p.row.addDate)) } },
+                    { title: "录入日期", key: "addDate", width: 155, sortable: true, render: (h, p) => { return h('p', D.datetime(p.row.addDate)) } },
                     {
                         title: "操作", width: 180,
                         renderHeader: (h, p) => {
@@ -55,10 +73,7 @@
                                     props: { size: "small", type: "ghost", shape: "circle", icon: "ios-plus-empty" },
                                     nativeOn: {
                                         click: () => {
-                                            this._add()
-                                             setTimeout(()=>{
-                                                this.$refs['loginName'].$el.querySelector(':scope > input').focus()
-                                            }, 500)
+                                            this._add("name")
                                         }
                                     }
                                 })
@@ -67,8 +82,8 @@
                         render: (h, p) => {
                             return h('ButtonGroup', [
                                 h('Button', {
-                                    attrs: { title: "编辑", disabled: this.datas[p.index].id === window.ACCOUNT.id },
-                                    props: { type: "ghost", icon: "edit"},
+                                    attrs: { title: "编辑" },
+                                    props: { type: "ghost", icon: "compose"},
                                     nativeOn: {
                                         click: () => {
                                             this._edit(p.index)
@@ -76,18 +91,16 @@
                                     }
                                 }),
                                 h('Button', {
-                                    attrs: { title: "修改密码" },
-                                    props: { type: "ghost", icon: "ios-locked" },
+                                    attrs: { title: "发布新版本" },
+                                    props: { type: "ghost", icon: "upload" },
                                     nativeOn: {
                                         click: () => {
-                                            this.pwd.value = ""
-                                            this.pwd.index = p.index
-                                            this.pwd.show = true
+                                            this.showUpload(p.index)
                                         }
                                     }
                                 }),
                                 h('Button', {
-                                    attrs: { title: "删除此业务员", disabled: this.datas[p.index].id === window.ACCOUNT.id },
+                                    attrs: { title: "删除此应用"},
                                     props: { type: "error", icon: "ios-trash" },
                                     nativeOn: {
                                         click: () => {
@@ -99,6 +112,13 @@
                         }
                     }
                 ]
+            }
+        },
+        methods: {
+            showUpload (index){
+                this.$refs['uploadModal'].reset()
+                this.upload.app = index>=0?this.datas[index]:{id:0,name:"",version:""}
+                this.upload.show = true
             }
         },
         mounted () {

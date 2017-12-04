@@ -43,7 +43,7 @@ router.afterEach(route => {
 })
 
 
-Vue.config.productionTip = false
+Vue.config.productionTip = true
 // Vue.config.silent = true
 // Vue.config.devtools = false
 
