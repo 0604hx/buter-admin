@@ -37,10 +37,23 @@
     </div>
 </template>
 
+<style>
+    .menuBtn {
+        padding: 6px 8px;
+    }
+</style>
 
 <script>
     import P from '@/macro/page.tpl.vue'
     import VersionUpload from './upload.vue'
+
+    //执行相关操作后，应用的状态变更规则
+    let nextStat = {
+        'start':    1,
+        'stop':     0,
+        'restart':  1,
+        'delete':   -1
+    }
 
     export default P.extend({
         components: {
@@ -60,8 +73,24 @@
                     { title: "版本", key: "version", width: 120, sortable: true },
                     { title: "备注信息", key: "remark" },
                     { title: "录入日期", key: "addDate", width: 155, sortable: true, render: (h, p) => { return h('p', D.datetime(p.row.addDate)) } },
+                    { 
+                        title: "状态", key: "stat", width:100, 
+                        render: (h, p)=>{
+                            let s = window.C.stats[p.row.stat]
+                            return !s? '' : h(
+                                'Tag',
+                                {
+                                    attrs:{
+                                        title: s.summary, 
+                                        color:p.row.stat==-1?"default":p.row.stat==0?"yellow":"green"
+                                    },
+                                }, 
+                                s.text
+                            )
+                        } 
+                    },
                     {
-                        title: "操作", width: 180,
+                        title: "操作", width: 230,
                         renderHeader: (h, p) => {
                             return h('div', [
                                 h('span', "操作"),
@@ -72,42 +101,82 @@
                                     attrs: { title: "新增业务员" },
                                     props: { size: "small", type: "ghost", shape: "circle", icon: "ios-plus-empty" },
                                     nativeOn: {
-                                        click: () => {
-                                            this._add("name")
-                                        }
+                                        click: () => this._add("name")
                                     }
                                 })
                             ])
                         },
                         render: (h, p) => {
-                            return h('ButtonGroup', [
-                                h('Button', {
-                                    attrs: { title: "编辑" },
-                                    props: { type: "ghost", icon: "compose"},
-                                    nativeOn: {
-                                        click: () => {
-                                            this._edit(p.index)
+                            let stat = p.row.stat
+                            return h('div',[
+                                h('ButtonGroup', [
+                                    h('Button', {
+                                        attrs: { title: "发布新版本"},
+                                        props: { type: "ghost", icon: "upload"},
+                                        nativeOn: {
+                                            click: () => this.showUpload(p.index)
                                         }
-                                    }
-                                }),
-                                h('Button', {
-                                    attrs: { title: "发布新版本" },
-                                    props: { type: "ghost", icon: "upload" },
-                                    nativeOn: {
-                                        click: () => {
-                                            this.showUpload(p.index)
+                                    }),
+                                    h('Button', {
+                                        class:stat==0?"success":"",
+                                        attrs: { title: "启动此应用" },
+                                        props: { type: "ghost", icon: "play", disabled: stat!='0'},
+                                        nativeOn: {
+                                            click: () => this.operate(p.index,'start')
                                         }
-                                    }
-                                }),
-                                h('Button', {
-                                    attrs: { title: "删除此应用"},
-                                    props: { type: "error", icon: "ios-trash" },
-                                    nativeOn: {
-                                        click: () => {
-                                            this._del(p.index)
+                                    }),
+                                    h('Button', {
+                                        class: stat==1?"error":"",
+                                        attrs: { title: "停止此应用" },
+                                        props: { type: "ghost", icon: "stop", disabled: stat!=1},
+                                        nativeOn: {
+                                            click: () => this.operate(p.index,'stop')
                                         }
-                                    }
-                                })
+                                    }),
+                                    h('Button', {
+                                        class:stat>=0?"warning":"",
+                                        attrs: { title: "重新启动此应用" },
+                                        props: { type: "ghost", icon: "android-refresh", disabled: stat!=0 && stat!=1},
+                                        nativeOn: {
+                                            click: () => this.operate(p.index,'restart')
+                                        }
+                                    }),
+                                ]),
+                                h(
+                                    'Dropdown',
+                                    {
+                                        props:{placement:"bottom-end",trigger:"click"}
+                                    },
+                                    [
+                                        h('Button',{
+                                            class:'menuBtn',
+                                            attrs: {title:"点击展开更多菜单"},
+                                            props:{type:"ghost",icon:'arrow-down-b'}
+                                        }),
+                                        h('Dropdown-menu',
+                                            {slot:"list"},
+                                            [
+                                                h('Dropdown-item',{
+                                                    nativeOn: {
+                                                        click: ()=>this._edit(p.index)
+                                                    }
+                                                },"编辑"),
+                                                h('Dropdown-item',{
+                                                    nativeOn: {
+                                                        click: ()=>this.logs(p.index)
+                                                    }
+                                                },"操作日志"),
+                                                h('Dropdown-item',{
+                                                    class:'error',
+                                                    props:{divided:true},
+                                                    nativeOn: {
+                                                        click: ()=>this._del(p.index)
+                                                    }
+                                                },"删除此应用"),
+                                            ]
+                                        )
+                                    ]
+                                )
                             ])
                         }
                     }
@@ -115,10 +184,41 @@
             }
         },
         methods: {
+            /**
+             * 操作容器
+             * op=start     启动
+             * op=stop      停止
+             * op=restart   重启
+             * op=delete    删除容器（并不会删除应用记录）
+             */ 
+            operate(index, op){
+                let name = this.datas[index].name
+                let stat = nextStat[op]
+
+                M.confirm(op, `对容器 ${name} 执行 ${op} 操作吗？<br><br> 操作成功后，容器状态变更为 <b>${window.C.stats[stat].text}</b>`, ()=>{
+                    RESULT(`app/operate/${name}/${op}`,{},d=>{
+                        this._updateIndex(index, {stat: stat})
+
+                        M.notice.ok(`容器 ${name} ${op} 成功，状态变更为 <b>${window.C.stats[stat].text}</b>`)
+                    })
+                })
+            },
+            logs(index){
+                M.warn("此功能正在开发中，敬请期待...")
+            },
             showUpload (index){
                 this.$refs['uploadModal'].reset()
                 this.upload.app = index>=0?this.datas[index]:{id:0,name:"",version:""}
                 this.upload.show = true
+            },
+            /**
+             * 数据加载完成后，读取应用的状态信息
+             */ 
+            onPageLoaded (){
+                RESULT("app/stats",{names:this.datas.map(v=>v.name).join(",")},d=>{
+                    let stats = d.data
+                    this.datas.forEach((v,i)=>this._updateIndex(i, {stat:stats[v.name]}))
+                })
             }
         },
         mounted () {

@@ -3,6 +3,16 @@
 
 [Buter](https://www.github.com/0604hx/buter) 系统的 UI 界面
 
+## 界面预览
+
+### 应用管理
+
+![](docs/app-index.png)
+
+### 资源&文件
+
+![](docs/resource-index.png)
+
 ## 如何使用
 
 ``` bash

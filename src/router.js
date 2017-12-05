@@ -29,6 +29,14 @@ let routes = [
     component: resolve => require(['V/application/Index'], resolve)
   },
   {
+    path: '/resource',
+    name: 'resource',
+    meta:{
+      title:"资源&文件"
+    },
+    component: resolve => require(['V/Resource'], resolve)
+  },
+  {
     path: '*',
     redirect: '/demo'
   }

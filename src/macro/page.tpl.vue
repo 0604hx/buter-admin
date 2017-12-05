@@ -89,17 +89,17 @@
                     this.api.list,
                     Object.assign({page:M.page.current, pageSize:M.page.pageSize},M.page.params,this._formBeforeLoad(),ps||{}),
                     (d)=>{
-                M.page.total = d.total
-                //计算耗时
-                const endT=(new Date()).getTime();
-                M.page.info="加载"+d.data.length+"条数据，耗时"+(endT-startT)/1000+"秒(数据总量"+M.page.total+")";
+                        M.page.total = d.total
+                        //计算耗时
+                        const endT=(new Date()).getTime();
+                        M.page.info="加载"+d.data.length+"条数据，耗时"+(endT-startT)/1000+"秒(数据总量"+M.page.total+")";
 
-                //如果存在onPageLoaed方法，则调用
-                if(typeof(M.onPageLoaded)==='function')
-                    M.onPageLoaded()
-                M.datas=d.data
-            }
-            )
+                        M.datas=d.data
+                        //如果存在onPageLoaed方法，则调用
+                        if(typeof(M.onPageLoaded)==='function')
+                            M.onPageLoaded()
+                    }
+                )
             },
             _search (){
                 this._load(1)

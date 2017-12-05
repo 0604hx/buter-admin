@@ -54,6 +54,7 @@
         methods: {
             reset(){
                 this.file = null
+                this.$refs['upload'].clearFiles()
             },
             uploadDo (){
                 if(!!this.uploading)    return M.warn("文件正在上传中，请耐心等待...")

@@ -45,28 +45,28 @@ const M = {
             iView.Notice.success({
                 title: t,
                 desc: m||'',
-                duration:d||5
+                duration:d||10
             });
         },
         warn (m,t="警告",d){
             iView.Notice.warning({
                 title: t,
                 desc: m||'',
-                duration:d||5
+                duration:d||10
             });
         },
         info (m,t="",d){
             iView.Notice.info({
                 title: t,
                 desc: m||'',
-                duration:d||5
+                duration:d||10
             });
         },
         error (m,t="操作失败",d){
             iView.Notice.error({
                 title: t,
                 desc: m||'',
-                duration:d||5
+                duration:d||30
             });
         }
     },
