@@ -1,5 +1,6 @@
 <!--首页总览-->
-<style></style>
+<style>
+</style>
 
 <template>
     <div>
@@ -14,6 +15,10 @@
                     <Tag v-for="(k,v) in f">{{v +" = "+k}}</Tag>
                 </div>
             </div>
+            <Spin v-if="infoLoading" fix>
+                <Icon type="load-c" size=18 class="loading"></Icon>
+                <div>数据加载中...</div>
+            </Spin>
         </Card>
     </div>
 </template>
@@ -22,11 +27,17 @@
     export default {
         data () {
             return {
-                info:{}
+                info:{},
+                infoLoading:true
             }
         },
         mounted () {
-            GET("/info",{}, d=>this.info = d)
+            GET("/info",{}, d=>{
+                this.info = d
+                this.infoLoading = false
+            },()=>{
+                this.infoLoading = false
+            })
         }
     }
 </script>
