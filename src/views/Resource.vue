@@ -2,7 +2,7 @@
     <div>
         <i-form inline class="thin">
             <Form-item>
-                <i-input type="text" v-model="form.s_LIKE_name" placeholder="文件名"></i-input>
+                <i-input type="text" v-model="form.name" placeholder="文件名"></i-input>
             </Form-item>
             <Form-item>
                 <i-button type="primary" shape="circle" icon="ios-search" @click.native="_search()"></i-button>

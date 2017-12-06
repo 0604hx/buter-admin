@@ -7,7 +7,7 @@ const path = require('path')
 const _proxy = {}
 const prefixs = [
     "/heartbeat","/info",
-    "/app","/resource","/logs"
+    "/app","/resource","/logs","/docker"
 ]
 for(var i=0;i<prefixs.length;i++){
     _proxy[prefixs[i]] = {

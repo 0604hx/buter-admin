@@ -20,11 +20,23 @@
                 <div>数据加载中...</div>
             </Spin>
         </Card>
+
+        <Card class="mt10 p0">
+            <p slot="title">
+                <Icon type="ios-camera-outline" class="mr10"></Icon>已安装镜像
+            </p>
+            <DockerImages></DockerImages>
+        </Card>
     </div>
 </template>
 
 <script>
+    import DockerImages from "C/docker/images.vue"
+
     export default {
+        components: {
+            DockerImages  
+        },
         data () {
             return {
                 info:{},
