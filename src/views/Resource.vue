@@ -9,7 +9,7 @@
             </Form-item>
         </i-form>
 
-        <i-table :data="datas" :columns="columns" stripe class="plain"></i-table>
+        <i-table :data="datas" :columns="columns" stripe></i-table>
         <TablePage v-model="page"></TablePage>
     </div>
 </template>

@@ -12,7 +12,8 @@ const prefixs = [
 for(var i=0;i<prefixs.length;i++){
     _proxy[prefixs[i]] = {
         target: 'http://localhost:5000/',
-        changeOrigin: true
+        changeOrigin: true,
+        secure: false
     }
 }
 

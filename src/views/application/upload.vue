@@ -6,6 +6,13 @@
         <Form-item label="版本号">
             <i-input v-model="app.version" placeholder="默认版本号为1.0.0"></i-input>
         </Form-item>
+        <Form-item label="部署模式">
+            <RadioGroup v-model="category">
+                <Radio label="0">全新部署</Radio>
+                <Radio label="1">迭代更新</Radio>
+            </RadioGroup>
+            <span class="h" v-text="tips[category]"></span>
+        </Form-item>
 
         <Form-item label="上传文件">
             <div style="line-height:1rem">
@@ -48,15 +55,19 @@
         data () {
             return {
                 uploading:false,
-                file:null
+                file:null,
+                category:1,
+                tips:['上传完整的应用包，部署过程中会删除同名的容器','上传并覆盖旧文件（此模式不会创建新容器）']
             }
         },
         methods: {
             reset(){
                 this.file = null
                 this.$refs['upload'].clearFiles()
+                this.category = 1
             },
             uploadDo (){
+                console.log(this.app)
                 if(!!this.uploading)    return M.warn("文件正在上传中，请耐心等待...")
                 if(!!this.file){
                     this.uploading = true
@@ -69,7 +80,8 @@
                 this.uploading = false
                 console.log(resp)
                 if(resp.success === true){
-                    M.notice.ok("新版本上传成功："+resp.message)
+                    let fileInfo = resp.data.map(v=>`<div>${v}</div>`)
+                    M.notice.ok("新版本上传成功："+resp.message+". 处理以下文件："+fileInfo)
 
                     this.file = null
                     this.$emit("upload-done", resp)
@@ -89,6 +101,11 @@
             beforeUpload (f){
                 this.file = f
                 return false
+            }
+        },
+        watch: {
+            category (v){
+                this.app.update = v==1
             }
         }
     }

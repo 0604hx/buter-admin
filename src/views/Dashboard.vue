@@ -9,10 +9,10 @@
                 <Icon type="ios-film-outline" class="mr10"></Icon>系统信息
             </p>
             <div style="font-family:consolas">
-                <div v-for="(f,i) in info">
+                <div v-for="(f,i) in info" :key="i">
                     <Tag color="green">{{i}}</Tag>
                     
-                    <Tag v-for="(k,v) in f">{{v +" = "+k}}</Tag>
+                    <Tag v-for="(k,v) in f" :key="v">{{v +" = "+k}}</Tag>
                 </div>
             </div>
             <Spin v-if="infoLoading" fix>

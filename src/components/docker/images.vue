@@ -1,7 +1,7 @@
 <!--显示docker镜像-->
 
 <template>
-    <i-table :data="datas" :columns="columns" stripe class="plain"></i-table>
+    <i-table :data="datas" :columns="columns" stripe class="plain" size="small"></i-table>
 </template>
 
 <script>

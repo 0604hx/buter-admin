@@ -9,7 +9,7 @@
             </Form-item>
         </i-form>
 
-        <i-table :data="datas" :columns="columns" stripe class="plain"></i-table>
+        <i-table :data="datas" :columns="columns" stripe></i-table>
         <TablePage v-model="page"></TablePage>
 
         <Modal v-model="addModal.show" title="编辑任务" :loading="addModal.work" @on-ok="_addDo">
@@ -167,12 +167,25 @@
                                                     }
                                                 },"操作日志"),
                                                 h('Dropdown-item',{
+                                                    class:'warning',
+                                                    props:{divided:true},
+                                                    nativeOn: {
+                                                        click: ()=>this.operate(p.index,'delete')
+                                                    }
+                                                },[h('Icon', {props:{type:"cube", size:14}})," 删除容器"]),
+                                                h('Dropdown-item',{
+                                                    class:'warning',
+                                                    nativeOn: {
+                                                        click: ()=>this.clean(p.index)
+                                                    }
+                                                },[h('Icon', {props:{type:"ios-close-outline", size:14}})," 清空应用数据"]),
+                                                h('Dropdown-item',{
                                                     class:'error',
                                                     props:{divided:true},
                                                     nativeOn: {
                                                         click: ()=>this._del(p.index)
                                                     }
-                                                },"删除此应用"),
+                                                },[h('Icon', {props:{type:"ios-trash-outline", size:14}})," 删除此应用"]),
                                             ]
                                         )
                                     ]
@@ -201,6 +214,12 @@
 
                         M.notice.ok(`容器 ${name} ${op} 成功，状态变更为 <b>${window.C.stats[stat].text}</b>`)
                     })
+                })
+            },
+            clean (index){
+                let app = this.datas[index]
+                M.confirm("清空数据","清空应用数据将会移除整个应用目录（可能包括应用相关的 日志、附件、配置文件 等），确定吗？",()=>{
+                    RESULT(`app/clean/${app.id}`,{},d=>M.notice.ok(`应用 ${app.name} 数据清空成功`))
                 })
             },
             logs(index){
