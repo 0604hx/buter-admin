@@ -7,7 +7,14 @@
         width="95%"
         :title="app+' 应用日志'"
         >
-        <codemirror :value="logs" :options="options"></codemirror>
+        <div class="mt8">
+            显示行数：<InputNumber :max="100000" :min="1" v-model="tail" :step="200" @on-change="loadLogs"></InputNumber>
+            <span class="h ml10">默认每次只显示 1000 行日志，最大支持 100,000 行</span>
+        </div>
+
+        <div style="border-top:1px solid #e9eaec" class="mt8">
+            <codemirror :value="logs" :options="options"></codemirror>
+        </div>
     </Modal>
 </template>
 
@@ -21,6 +28,7 @@
         data () {
             return {
                 app:"",
+                tail:1000,
                 show:false,
                 logs:"",
                 options:{
@@ -40,7 +48,7 @@
                 this.loadLogs()
             },
             loadLogs(){
-                GET("docker/logs/"+this.app,{}, d=>this.logs=d)
+                POST("docker/logs/"+this.app,{tail:this.tail}, d=>this.logs=d)
             }
         }
     }
