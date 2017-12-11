@@ -34,6 +34,8 @@
             <div slot="footer">
             </div>
         </Modal>
+
+        <LogModal ref="logModal"></LogModal>
     </div>
 </template>
 
@@ -46,6 +48,7 @@
 <script>
     import P from '@/macro/page.tpl.vue'
     import VersionUpload from './upload.vue'
+    import LogModal from './logs.vue'
 
     //执行相关操作后，应用的状态变更规则
     let nextStat = {
@@ -58,7 +61,7 @@
     export default P.extend({
         components: {
             "CountPanel":require("C/commons/panel-count.vue").default,
-            VersionUpload
+            VersionUpload, LogModal
         },
         data () {
             return {
@@ -223,7 +226,8 @@
                 })
             },
             logs(index){
-                M.warn("此功能正在开发中，敬请期待...")
+                let app = this.datas[index]
+                this.$refs['logModal'].open(app.name)
             },
             showUpload (index){
                 this.$refs['uploadModal'].reset()
