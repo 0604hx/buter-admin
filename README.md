@@ -7,11 +7,11 @@
 
 ### 应用管理
 
-![](docs/app-index.png)
+![](docs/images/app-index.png)
 
 ### 资源&文件
 
-![](docs/resource-index.png)
+![](docs/images/resource-index.png)
 
 ## 如何使用
 
