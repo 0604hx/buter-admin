@@ -28,13 +28,6 @@
             </div>
         </Modal>
 
-
-        <Modal class="noFooter" v-model="upload.show" title="发布新版本" :mask-closable="false" :width="800">
-            <VersionUpload ref="uploadModal" :app="upload.app"></VersionUpload>
-            <div slot="footer">
-            </div>
-        </Modal>
-
         <LogModal ref="logModal"></LogModal>
     </div>
 </template>
@@ -47,21 +40,15 @@
 
 <script>
     import P from '@/macro/page.tpl.vue'
-    import VersionUpload from './upload.vue'
     import LogModal from './logs.vue'
+    import AppControl from 'C/app/control.vue'
 
-    //执行相关操作后，应用的状态变更规则
-    let nextStat = {
-        'start':    1,
-        'stop':     0,
-        'restart':  1,
-        'delete':   -1
-    }
+    import A from 'S/Application'
 
     export default P.extend({
         components: {
             "CountPanel":require("C/commons/panel-count.vue").default,
-            VersionUpload, LogModal
+            LogModal, AppControl
         },
         data () {
             return {
@@ -112,39 +99,42 @@
                         render: (h, p) => {
                             let stat = p.row.stat
                             return h('div',[
-                                h('ButtonGroup', [
-                                    h('Button', {
-                                        attrs: { title: "发布新版本"},
-                                        props: { type: "ghost", icon: "upload"},
-                                        nativeOn: {
-                                            click: () => this.showUpload(p.index)
-                                        }
-                                    }),
-                                    h('Button', {
-                                        class:stat==0?"success":"",
-                                        attrs: { title: "启动此应用" },
-                                        props: { type: "ghost", icon: "play", disabled: stat!='0'},
-                                        nativeOn: {
-                                            click: () => this.operate(p.index,'start')
-                                        }
-                                    }),
-                                    h('Button', {
-                                        class: stat==1?"error":"",
-                                        attrs: { title: "停止此应用" },
-                                        props: { type: "ghost", icon: "stop", disabled: stat!=1},
-                                        nativeOn: {
-                                            click: () => this.operate(p.index,'stop')
-                                        }
-                                    }),
-                                    h('Button', {
-                                        class:stat>=0?"warning":"",
-                                        attrs: { title: "重新启动此应用" },
-                                        props: { type: "ghost", icon: "android-refresh", disabled: stat!=0 && stat!=1},
-                                        nativeOn: {
-                                            click: () => this.operate(p.index,'restart')
-                                        }
-                                    }),
-                                ]),
+                                h(AppControl,{
+                                    props:{value:p.row}
+                                }),
+                                // h('ButtonGroup', [
+                                //     h('Button', {
+                                //         attrs: { title: "发布新版本"},
+                                //         props: { type: "ghost", icon: "upload"},
+                                //         nativeOn: {
+                                //             click: () => this.showUpload(p.index)
+                                //         }
+                                //     }),
+                                //     h('Button', {
+                                //         class:stat==0?"success":"",
+                                //         attrs: { title: "启动此应用" },
+                                //         props: { type: "ghost", icon: "play", disabled: stat!='0'},
+                                //         nativeOn: {
+                                //             click: () => this.operate(p.index,'start')
+                                //         }
+                                //     }),
+                                //     h('Button', {
+                                //         class: stat==1?"error":"",
+                                //         attrs: { title: "停止此应用" },
+                                //         props: { type: "ghost", icon: "stop", disabled: stat!=1},
+                                //         nativeOn: {
+                                //             click: () => this.operate(p.index,'stop')
+                                //         }
+                                //     }),
+                                //     h('Button', {
+                                //         class:stat>=0?"warning":"",
+                                //         attrs: { title: "重新启动此应用" },
+                                //         props: { type: "ghost", icon: "android-refresh", disabled: stat!=0 && stat!=1},
+                                //         nativeOn: {
+                                //             click: () => this.operate(p.index,'restart')
+                                //         }
+                                //     }),
+                                // ]),
                                 h(
                                     'Dropdown',
                                     {
@@ -173,7 +163,7 @@
                                                     class:'warning',
                                                     props:{divided:true},
                                                     nativeOn: {
-                                                        click: ()=>this.operate(p.index,'delete')
+                                                        click: ()=>this.operate(p.row,'delete')
                                                     }
                                                 },[h('Icon', {props:{type:"cube", size:14}})," 删除容器"]),
                                                 h('Dropdown-item',{
@@ -200,24 +190,8 @@
             }
         },
         methods: {
-            /**
-             * 操作容器
-             * op=start     启动
-             * op=stop      停止
-             * op=restart   重启
-             * op=delete    删除容器（并不会删除应用记录）
-             */ 
-            operate(index, op){
-                let name = this.datas[index].name
-                let stat = nextStat[op]
-
-                M.confirm(op, `对容器 ${name} 执行 ${op} 操作吗？<br><br> 操作成功后，容器状态变更为 <b>${window.C.stats[stat].text}</b>`, ()=>{
-                    RESULT(`app/operate/${name}/${op}`,{},d=>{
-                        this._updateIndex(index, {stat: stat})
-
-                        M.notice.ok(`容器 ${name} ${op} 成功，状态变更为 <b>${window.C.stats[stat].text}</b>`)
-                    })
-                })
+            operate (app,op){
+                A.operate(app.name, op, stat=>app.stat=stat)
             },
             clean (index){
                 let app = this.datas[index]
@@ -230,9 +204,7 @@
                 this.$refs['logModal'].open(app.name)
             },
             showUpload (index){
-                this.$refs['uploadModal'].reset()
-                this.upload.app = index>=0?this.datas[index]:{id:0,name:"",version:""}
-                this.upload.show = true
+                E.$emit("app.upload", index>=0?this.datas[index]:{id:0,name:"",version:""})
             },
             /**
              * 数据加载完成后，读取应用的状态信息

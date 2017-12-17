@@ -4,16 +4,19 @@
     <div class="p10">
         <router-view></router-view>
     </div>
+    
+    <Global></Global>
   </div>
 </template>
 
 <script>
   import MenuBar from 'C/menubar.vue'
+  import Global from 'V/Global.vue'
 
   export default {
     name: 'app',
     components: {
-      MenuBar
+      MenuBar, Global
     }
   }
 </script>

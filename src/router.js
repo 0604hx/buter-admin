@@ -29,16 +29,19 @@ let routes = [
     component: resolve => require(['V/application/Index'], resolve)
   },
   {
-    path: '/resource',
-    name: 'resource',
+    path: '/detail/:name', name:'detail', 
     meta:{
-      title:"资源&文件"
+      title:"应用详情"
     },
-    component: resolve => require(['V/Resource'], resolve)
+    component: resolve => require(['V/application/Detail'], resolve),
+    children:[
+      { path: '/detail/:name/fs', meta:{title:"文件管理-应用详情"}, component: resolve => require(['V/application/FileSystem'], resolve)},
+      { path: '/detail/:name/monitor', meta:{title:"状态监控-应用详情"}, component: resolve => require(['V/application/Monitor'], resolve)}
+    ]
   },
   {
     path: '*',
-    redirect: '/dashboard'
+    redirect: '/demo'
   }
 ]
 

@@ -17,5 +17,17 @@ export default {
             text:"运行中",
             summary:"此应用容器正在运行中"  
         }
+    },
+
+    /**
+     * 定制 codemirror 选项
+     */
+    getCodeOptions: (ps)=>{
+        return Object.assign({
+            readOnly:false,
+            tabSize: 2,
+            lineNumbers: true,
+            lineWrapping: true
+        }, ps)
     }
 }
