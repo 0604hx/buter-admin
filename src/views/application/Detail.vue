@@ -18,9 +18,9 @@
             </span>
         </Alert>
 
-        <Tabs class="detailTab">
-            <TabPane label="文件管理" icon="ios-folder-outline"></TabPane>
-            <TabPane label="日志" icon="ios-list-outline"></TabPane>
+        <Tabs class="detailTab" @on-click="tabClick" :value="tab">
+            <TabPane name="fs" label="文件管理" icon="ios-folder-outline"></TabPane>
+            <TabPane name="monitor" label="状态监控" icon="ios-analytics"></TabPane>
         </Tabs>
 
         <transition>
@@ -44,6 +44,7 @@
         },
         data () {
             return {
+                tab:"fs",
                 name:null,
                 app:null,
                 stat:false,
@@ -58,7 +59,6 @@
                 E.$emit("app.loaded")
                 //默认打开文件系统
                 if(this.$route.name=='detail'){
-                    console.log("------------")
                     this.$router.replace(`/detail/${this.name}/fs`)
                 }
             },
@@ -75,6 +75,12 @@
                         this.$set(this.app, 'stat', stats[d.name])
                     })
                 })
+            },
+            tabClick(name){
+                return this.tabChange(name) && this.$router.push(`/detail/${this.name}/${name}`)
+            },
+            tabChange(name){
+                return this.tab != name && (this.tab = name)
             }
         },
         mounted () {
@@ -86,6 +92,11 @@
                 this.loadAndEmit()
             else
                 this.load()
+
+            E.$on("app.detail.tab", this.tabChange)
+        },
+        destroyed () {
+            E.$off("app.detail.tab", this.tabChange)
         }
     }
 </script>

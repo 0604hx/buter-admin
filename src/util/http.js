@@ -39,9 +39,9 @@ var _initAxios=(iView)=>{
 
 var _dealWithErrorRequest = (url,error, onFail)=>{
     iView.LoadingBar.finish();
-    console.log('请求<b class="error">'+url+"</b>出错",error)
+    console.log('[_dealWithErrorRequest] 请求<b class="error">'+url+"</b>出错",error)
     if(onFail)
-        if(onFail()) return
+        if(onFail(error?error.response:null)) return
 
     if(error && !error.response){
         //触发 网络无效 的事件
@@ -106,8 +106,7 @@ window.RESULT=(url,data,onOk,onFail)=>{
         else{
             //打印错误信息
             console.log('RESULT 请求<b class="error">'+url+"</b>时失败:"+res.message)
-            M.notice.error(res.message,"操作失败",10)
-            if(onFail) onFail(res)
+            return (onFail && onFail(res)) || M.notice.error(res.message,"操作失败",10)
         }
     },onFail)
 }

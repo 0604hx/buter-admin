@@ -9,6 +9,12 @@
 
 ![](docs/images/app-index.png)
 
+#### 详情：文件管理
+
+![](docs/images/app-detail-fs.png)
+
+#### 详情：状态监控
+
 ### 资源&文件
 
 ![](docs/images/resource-index.png)

@@ -1,8 +1,10 @@
 <!--文件系统-->
 <template>
     <Row :gutter="12">
-        <Col span="4" style="overflow:hidden">
-            <Tree :data="files" :load-data="loadChild" :render="renderNode" @on-select-change="onSelect"></Tree>
+        <Col class="p5" span="4" style="overflow:hidden">
+            <Card style="overflow-x: auto;">
+                <Tree :data="files" :load-data="loadChild" :render="renderNode" @on-select-change="onSelect"></Tree>
+            </Card>
         </Col>
         <Col span="20">
             <Row style="padding:6px 0px 6px; border-bottom:1px solid #dddee1">
@@ -11,7 +13,7 @@
                 </Col>
                 <Col span="8" class="r">
                     <ButtonGroup size="small">
-                        <Button type="ghost" @click="refresh" title="刷新整个文件树">刷新</Button>
+                        <Button type="ghost" @click="refresh" title="刷新整个文件树并清空当前选择">刷新</Button>
 
                         <Button title="先选择需要目标文件夹" type="ghost"
                             :disabled="canUpload" @click="toUpload">
@@ -122,7 +124,14 @@
             },
             refresh(){
                 //if(this.isFile) return M.warn("文件无法刷新")
-                this.load("",d=>this.files=d)
+                
+                this.load("",d=>{
+                    this.curFile = ""
+                    this.isFile = false
+                    this.updateContent()
+
+                    this.files=d
+                })
             },
             load (loc, cb){
                 POST("/app/fs/"+this.name,{location: loc},d=>{
@@ -172,6 +181,7 @@
                     RESULT("app/fs/update/"+this.name, {location: this.curFile, del:1}, d=>{
                         M.notice.ok(`${this.curFile} 删除成功`)
                         
+                        this.refresh()
                     })
                 })
             },
@@ -248,10 +258,9 @@
         mounted () {
             this.name = this.$route.params['name']
 
-            console.log("FS name=", this.name)
             this.load("",d=>this.files=d)
-        },
-        destroyed () {
+
+            E.$emit("app.detail.tab", "fs")
         }
     }
 </script>

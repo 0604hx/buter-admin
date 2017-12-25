@@ -41,7 +41,7 @@ let routes = [
   },
   {
     path: '*',
-    redirect: '/demo'
+    redirect: '/dashboard'
   }
 ]
 

@@ -59,7 +59,17 @@
                 autoFocus:"name",
                 columns: [
                     { title: "", type: "index", width: 40 },
-                    { title: "应用名", key: "name", width: 120, sortable: true },
+                    { 
+                        title: "应用名", key: "name", width: 120, sortable: true , 
+                        render:(h,p)=>{
+                            return h('a', {
+                                attrs:{title:"点击打开应用详情"},
+                                on: {
+                                    click: () => this.$router.push(`/detail/${p.row.name}`)
+                                }
+                            }, p.row.name)
+                        }
+                    },
                     { title: "版本", key: "version", width: 120, sortable: true },
                     { title: "备注信息", key: "remark" },
                     { title: "录入日期", key: "addDate", width: 155, sortable: true, render: (h, p) => { return h('p', D.datetime(p.row.addDate)) } },

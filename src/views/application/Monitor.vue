@@ -18,6 +18,7 @@
             this.id = !!id ? id : 0
 
             console.log("FS id=", this.id)
+            E.$emit("app.detail.tab", "monitor")
         },
         destroyed () {
         }
